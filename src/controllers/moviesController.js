@@ -4,7 +4,7 @@ const {Op} = Sequelize;
 
 
 const moviesController = {
-    'list': (req, res) => {
+    list: (req, res) => {
        Movie.findAll({
             include: [
                 {association: 'actors'}
@@ -14,15 +14,21 @@ const moviesController = {
                 res.render('moviesList.ejs', {movies})
             })
     },
-    'detail': (req, res) => {
-       Movie.findByPk(req.params.id,{ 
-        include: [{association: 'actors'}],
-        include: [{association: 'genre'}] })
-            .then(movie => {
-                res.render('moviesDetail.ejs', {movie});
-            });
-    },
-    'new': (req, res) => {
+    detail: (req, res) => {
+        Movie.findByPk(req.params.id, {
+              include: [
+                    {
+                          association: "actors",
+                    },
+                    {
+                          association: "genre",
+                    },
+              ],
+        }).then((movie) => {
+              res.render("moviesDetail", { movie });
+        });
+  },
+    new: (req, res) => {
         Movie.findAll({
             order : [
                 ['release_date', 'DESC']
@@ -33,7 +39,7 @@ const moviesController = {
                 res.render('newestMovies', {movies});
             });
     },
-    'recomended': (req, res) => {
+    recomended: (req, res) => {
         Movie.findAll({
             where: {
                 rating: {[Op.gte] : 8}
@@ -47,7 +53,7 @@ const moviesController = {
             });
     }, //Aqui debemos modificar y completar lo necesario para trabajar con el CRUD
     add: function (req, res) {
-        Genre.findall()
+        Genre.findAll()
             .then(genres => {  
         return res.render('moviesAdd', {genres})
             })
@@ -79,16 +85,15 @@ const moviesController = {
 
         }
     },
-    edit: function(req, res) {
+    edit: function (req, res) {
         const MOVIE_PROMISE = Movie.findByPk(req.params.id);
-        const GENRE_PROMISE = Genre.findAll();
-
-        Promise.all([MOVIE_PROMISE, GENRE_PROMISE])
-            .then(([movie, genres]) => {
-                return res.render('moviesEdit.ejs', {movie, genres});
-            })
-            .catch(error => console.log(error));
-    },
+        const GENRES_PROMISE = Genre.findAll();
+        Promise.all([MOVIE_PROMISE, GENRES_PROMISE])
+              .then(([Movie, genres]) => {
+                    res.render("moviesEdit", { Movie, genres });
+              })
+              .catch((error) => console.log(error));
+  },
     update: function (req,res) {
         let errors = validationResult(req);
 
@@ -107,7 +112,7 @@ const moviesController = {
                 })
                 .then((response) => {
                     if(response){
-                    return res.redirect("/movies/detail/" + req.params.id);
+                    return res.redirect("/movies");
                     } else {
                      throw new Error("No se pudo actualizar el registro");
                     }
@@ -116,13 +121,17 @@ const moviesController = {
             
 
             } else {
-                Movie.findByPk(req.params.id)
-            .then(Movie => {
-                res.render('moviesEdit.ejs', {Movie,
-                    errors: errors.mapped(),
-                    old: req.body});
-            });
-            }
+                const MOVIE_PROMISE = Movie.findByPk(req.params.id);
+                const GENRES_PROMISE = Genre.findAll();
+                Promise.all([MOVIE_PROMISE, GENRES_PROMISE])
+                    .then(([Movie, genres]) => {
+                    res.render("moviesEdit", { Movie,
+                        genres,
+                        errors: errors.mapped(),
+                        old: req.body });
+              })
+              .catch((error) => console.log(error));
+        }
     },
     delete: function (req, res) {
         Movie.findByPk(req.params.id)

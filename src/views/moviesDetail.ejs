@@ -20,18 +20,17 @@
     <p>GENRE: <%= movie.genre.name %> </p>
     <p>ACTORS:</p>
     <ul>
-        <% for (let i = 0; i < movie.actors.length; i++) { %>
-            <li><%= movie.actors[i].first_name + ' ' + movie.actors[i].last_name %></li>
-        <% } %>
-    </ul>
+        <% movie.actors.forEach(actor=> { %>
+              <li><%- `${actor.first_name} ${actor.last_name}` %></li>
+              <% }) %>
+  </ul>
 
-    <!-- delete button -->
     <form action="/movies/delete/<%= movie.id %>" method="get">
         <input type="hidden" name="_method" value="DELETE">
         <button type="submit">Borrar</button>   
     </form>
     <form action="/movies/edit/<%= movie.id %>" method="get">
-        <input type="hidden" name="_method" value="DELETE">
+        <input type="hidden" name="_method" value="PUT">
         <button type="submit">Editar</button>   
     </form>
 </body>

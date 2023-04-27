@@ -35,7 +35,7 @@
             <label for="genres">GENRES</label>
             <select name="genre_id" id="genres">
                 <% genres.forEach(genre => { %>
-                    <option value="<%- genre.id %>" <%= genre.id == movie.genre_id ? "selected" : "" %>><%- genre.name %></option>
+                    <option value="<%- genre.id %>" <%= genre.id == Movie.genre_id ? "selected" : "" %>><%- genre.name %></option>
                 <% }) %>
             </select>
             <br>
